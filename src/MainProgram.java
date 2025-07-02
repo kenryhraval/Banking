@@ -34,7 +34,7 @@ public class MainProgram {
                     if (id > 0 && id <= accounts.size()) {
                         System.out.print("Enter amount to deposit: ");
                         double amount = scanner.nextDouble();
-                        accounts.get(id).Deposit(amount);
+                        accounts.get(id-1).Deposit(amount);
                     } else {
                         System.out.println("Invalid account #");
                     }
@@ -45,7 +45,7 @@ public class MainProgram {
                     if (withdrawId > 0 && withdrawId <= accounts.size()) {
                         System.out.print("Enter amount to withdraw: ");
                         double withdrawAmount = scanner.nextDouble();
-                        accounts.get(withdrawId).Withdraw(withdrawAmount);
+                        accounts.get(withdrawId-1).Withdraw(withdrawAmount);
 
                     } else {
                         System.out.println("Invalid account #");
@@ -60,7 +60,7 @@ public class MainProgram {
                     if (sourceId > 0 && sourceId <= accounts.size() && destinationId > 0 && destinationId <= accounts.size()) {
                         System.out.print("Enter amount to transfer: ");
                         double transAmount = scanner.nextDouble();
-                        accounts.get(sourceId).TransferToAnother(accounts.get(destinationId), transAmount);
+                        accounts.get(sourceId-1).TransferToAnother(accounts.get(destinationId-1), transAmount);
 
                     } else {
                         System.out.println("Invalid account #");
@@ -68,7 +68,7 @@ public class MainProgram {
 
                     break;
                 case 5:
-                    if (accounts.size() == 0) System.out.println("No accounts to show.");
+                    if (accounts.isEmpty()) System.out.println("No accounts to show.");
                     for (int i = 0; i < accounts.size(); i++) {
                         System.out.print("Account #" + (i + 1) +  ": ");
                         accounts.get(i).PrintBalance();

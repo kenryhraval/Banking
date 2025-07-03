@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
 
 public class MainProgram {
     public static void main(String[] args) {
@@ -15,7 +16,8 @@ public class MainProgram {
             System.out.println("(3) Withdraw");
             System.out.println("(4) Transfer");
             System.out.println("(5) Balances");
-            System.out.println("(6) Exit");
+            System.out.println("(6) Save to file");
+            System.out.println("(7) Exit");
             System.out.println();
             System.out.print("Choose an option: ");
 
@@ -75,6 +77,18 @@ public class MainProgram {
                     }
                     break;
                 case 6:
+                    File file = new File("output.csv");
+                    try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                        out.println("AccountID,Balance");
+                        for (int i = 0; i < accounts.size(); i++) {
+                            out.println((i + 1) + "," + accounts.get(i).getBalance());
+                        }
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 7:
                     running = false;
                     System.out.println("Exiting program.");
                     break;

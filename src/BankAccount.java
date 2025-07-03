@@ -1,9 +1,3 @@
-/*
-create a method "printBalance" which displays the current balance to user
-method for transfer balance from one bank account to another
- Optionally make the program interactive with user e.g. using Scanner
-* */
-
 public class BankAccount {
     private double balance;
 
@@ -35,6 +29,10 @@ public class BankAccount {
         System.out.println("Current balance: $" + balance);
     }
 
+    public double getBalance() {
+        return balance;
+    }
+
     public void TransferToAnother(BankAccount another, double amount) {
         if (amount > 0) {
             if (this.balance >= amount) {
@@ -49,7 +47,6 @@ public class BankAccount {
             System.out.println("Can`t transfer non-positive money!");
         }
     }
-
 
 
 }

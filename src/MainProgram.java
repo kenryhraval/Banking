@@ -5,7 +5,7 @@ import java.io.*;
 public class MainProgram {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<BankAccount> accounts = new ArrayList<>();
+        AccountManager manager = new AccountManager();
 
         boolean running = true;
 
@@ -16,27 +16,30 @@ public class MainProgram {
             System.out.println("(3) Withdraw");
             System.out.println("(4) Transfer");
             System.out.println("(5) Balances");
-            System.out.println("(6) Save to file");
-            System.out.println("(7) Exit");
+            System.out.println("(6) Save accounts");
+            System.out.println("(7) Create report (CSV)");
+            System.out.println("(8) Exit");
             System.out.println();
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
                     System.out.print("Enter initial balance: ");
                     double initial = scanner.nextDouble();
-                    accounts.add(new BankAccount(initial));
-                    System.out.println("Account #" + accounts.size() + " created.");
+                    manager.addAccount(new BankAccount(initial));
+                    System.out.println("Account #" + manager.getSize() + " created.");
                     break;
                 case 2:
                     System.out.print("Enter account #: ");
                     int id = scanner.nextInt();
-                    if (id > 0 && id <= accounts.size()) {
+
+                    if (id > 0 && id <= manager.getSize()) {
                         System.out.print("Enter amount to deposit: ");
                         double amount = scanner.nextDouble();
-                        accounts.get(id-1).Deposit(amount);
+                        manager.getAccount(id-1).Deposit(amount);
                     } else {
                         System.out.println("Invalid account #");
                     }
@@ -44,10 +47,10 @@ public class MainProgram {
                 case 3:
                     System.out.print("Enter account #: ");
                     int withdrawId = scanner.nextInt();
-                    if (withdrawId > 0 && withdrawId <= accounts.size()) {
+                    if (withdrawId > 0 && withdrawId <= manager.getSize()) {
                         System.out.print("Enter amount to withdraw: ");
                         double withdrawAmount = scanner.nextDouble();
-                        accounts.get(withdrawId-1).Withdraw(withdrawAmount);
+                        manager.getAccount(withdrawId-1).Withdraw(withdrawAmount);
 
                     } else {
                         System.out.println("Invalid account #");
@@ -59,10 +62,10 @@ public class MainProgram {
                     int sourceId = scanner.nextInt();
                     System.out.print("Enter destination account #: ");
                     int destinationId = scanner.nextInt();
-                    if (sourceId > 0 && sourceId <= accounts.size() && destinationId > 0 && destinationId <= accounts.size()) {
+                    if (sourceId > 0 && sourceId <= manager.getSize() && destinationId > 0 && destinationId <= manager.getSize()) {
                         System.out.print("Enter amount to transfer: ");
                         double transAmount = scanner.nextDouble();
-                        accounts.get(sourceId-1).TransferToAnother(accounts.get(destinationId-1), transAmount);
+                        manager.getAccount(sourceId-1).TransferToAnother(manager.getAccount(destinationId-1), transAmount);
 
                     } else {
                         System.out.println("Invalid account #");
@@ -70,25 +73,32 @@ public class MainProgram {
 
                     break;
                 case 5:
-                    if (accounts.isEmpty()) System.out.println("No accounts to show.");
-                    for (int i = 0; i < accounts.size(); i++) {
+                    if (manager.getSize() == 0) System.out.println("No accounts to show.");
+                    for (int i = 0; i < manager.getSize(); i++) {
                         System.out.print("Account #" + (i + 1) +  ": ");
-                        accounts.get(i).PrintBalance();
+                        manager.getAccount(i).PrintBalance();
                     }
                     break;
                 case 6:
-                    File file = new File("output.csv");
-                    try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
-                        out.println("AccountID,Balance");
-                        for (int i = 0; i < accounts.size(); i++) {
-                            out.println((i + 1) + "," + accounts.get(i).getBalance());
-                        }
-                    } catch (IOException e) {
+                    try {
+                        manager.saveAccounts();
+                    } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
-
                 case 7:
+                    System.out.print("Enter report filename: ");
+                    String filename = scanner.nextLine();
+                    try {
+                        manager.exportReportCsv(filename);
+                        System.out.println("Report exported successfully.");
+                    } catch (Exception e) {
+                        System.out.println("Error exporting report: " + e.getMessage());
+                    }
+                    break;
+
+
+                case 8:
                     running = false;
                     System.out.println("Exiting program.");
                     break;

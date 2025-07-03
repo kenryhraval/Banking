@@ -1,43 +1,46 @@
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class BankAccount implements Serializable {
-    private double balance;
+    private BigDecimal balance;
 
     BankAccount() {
-        this.balance = 0;
+        this.balance = BigDecimal.ZERO;
     }
 
     BankAccount(double balance) {
-        this.balance = balance;
+        this.balance = BigDecimal.valueOf(balance);
     }
 
     public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-        } else {
-            System.out.println("Can`t deposit non-positive money!");
+        BigDecimal bdAmount = BigDecimal.valueOf(amount);
+        if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
+            balance = balance.add(bdAmount);
         }
+        else System.out.println("Can`t deposit non-positive money!");
     }
 
     public void withdraw(double amount) {
-        if (amount > 0) {
-            balance -= amount;
+        BigDecimal bdAmount = BigDecimal.valueOf(amount);
+        if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
+            balance = balance.subtract(bdAmount);
         } else {
             System.out.println("Can`t withdraw non-positive money!");
         }
     }
 
     public void printBalance() {
-        System.out.println("Current balance: $" + balance);
+        System.out.println(String.format("Current balance: $%.2f", balance.doubleValue()));
     }
 
     public double getBalance() {
-        return balance;
+        return balance.doubleValue();
     }
 
     public void transferToAnother(BankAccount another, double amount) {
-        if (amount > 0) {
-            if (this.balance >= amount) {
+        BigDecimal bdAmount = BigDecimal.valueOf(amount);
+        if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
+            if (this.balance.compareTo(bdAmount) >= 0) {
                 this.withdraw(amount);
                 another.deposit(amount);
 

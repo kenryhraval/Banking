@@ -73,7 +73,6 @@ public class MainProgram {
                         sourceAccount.transferToAnother(destinationAccount, transmitAmount);
 
                     }
-
                     break;
 
                 case 5:

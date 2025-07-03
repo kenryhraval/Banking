@@ -1,4 +1,3 @@
-import java.io.Serial;
 import java.io.Serializable;
 
 public class BankAccount implements Serializable {
@@ -12,7 +11,7 @@ public class BankAccount implements Serializable {
         this.balance = balance;
     }
 
-    public void Deposit(double amount) {
+    public void deposit(double amount) {
         if (amount > 0) {
             balance += amount;
         } else {
@@ -20,7 +19,7 @@ public class BankAccount implements Serializable {
         }
     }
 
-    public void Withdraw(double amount) {
+    public void withdraw(double amount) {
         if (amount > 0) {
             balance -= amount;
         } else {
@@ -28,7 +27,7 @@ public class BankAccount implements Serializable {
         }
     }
 
-    public void PrintBalance() {
+    public void printBalance() {
         System.out.println("Current balance: $" + balance);
     }
 
@@ -36,11 +35,11 @@ public class BankAccount implements Serializable {
         return balance;
     }
 
-    public void TransferToAnother(BankAccount another, double amount) {
+    public void transferToAnother(BankAccount another, double amount) {
         if (amount > 0) {
             if (this.balance >= amount) {
-                this.Withdraw(amount);
-                another.Deposit(amount);
+                this.withdraw(amount);
+                another.deposit(amount);
 
             } else {
                 System.out.println("Not enough money for the transfer!");

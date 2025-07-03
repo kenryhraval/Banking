@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.*;
 
 public class MainProgram {
     public static void main(String[] args) {
@@ -29,31 +27,34 @@ public class MainProgram {
                 case 1:
                     System.out.print("Enter initial balance: ");
                     double initial = scanner.nextDouble();
-                    manager.addAccount(new BankAccount(initial));
-                    System.out.println("Account #" + manager.getSize() + " created.");
+                    int newId = manager.addAccount(new BankAccount(initial));
+                    System.out.println("Account #" + newId + " created.");
                     break;
                 case 2:
                     System.out.print("Enter account #: ");
-                    int id = scanner.nextInt();
+                    int depositId = scanner.nextInt();
 
-                    if (id > 0 && id <= manager.getSize()) {
+                    BankAccount depositAccount = manager.getAccount(depositId);
+
+                    if (depositAccount == null) System.out.println("Invalid account #");
+                    else {
                         System.out.print("Enter amount to deposit: ");
                         double amount = scanner.nextDouble();
-                        manager.getAccount(id-1).Deposit(amount);
-                    } else {
-                        System.out.println("Invalid account #");
+                        depositAccount.deposit(amount);
                     }
                     break;
                 case 3:
                     System.out.print("Enter account #: ");
                     int withdrawId = scanner.nextInt();
-                    if (withdrawId > 0 && withdrawId <= manager.getSize()) {
+
+                    BankAccount withdrawAccount = manager.getAccount(withdrawId);
+
+                    if (withdrawAccount == null) System.out.println("Invalid account #");
+                    else {
                         System.out.print("Enter amount to withdraw: ");
                         double withdrawAmount = scanner.nextDouble();
-                        manager.getAccount(withdrawId-1).Withdraw(withdrawAmount);
+                        withdrawAccount.withdraw(withdrawAmount);
 
-                    } else {
-                        System.out.println("Invalid account #");
                     }
                     break;
 
@@ -62,23 +63,23 @@ public class MainProgram {
                     int sourceId = scanner.nextInt();
                     System.out.print("Enter destination account #: ");
                     int destinationId = scanner.nextInt();
-                    if (sourceId > 0 && sourceId <= manager.getSize() && destinationId > 0 && destinationId <= manager.getSize()) {
+
+                    BankAccount sourceAccount = manager.getAccount(sourceId);
+                    BankAccount destinationAccount = manager.getAccount(destinationId);
+                    if (sourceAccount == null || destinationAccount == null) System.out.println("Invalid account #");
+                    else {
                         System.out.print("Enter amount to transfer: ");
-                        double transAmount = scanner.nextDouble();
-                        manager.getAccount(sourceId-1).TransferToAnother(manager.getAccount(destinationId-1), transAmount);
+                        double transmitAmount = scanner.nextDouble();
+                        sourceAccount.transferToAnother(destinationAccount, transmitAmount);
 
-                    } else {
-                        System.out.println("Invalid account #");
                     }
 
                     break;
+
                 case 5:
-                    if (manager.getSize() == 0) System.out.println("No accounts to show.");
-                    for (int i = 0; i < manager.getSize(); i++) {
-                        System.out.print("Account #" + (i + 1) +  ": ");
-                        manager.getAccount(i).PrintBalance();
-                    }
+                    manager.printBalances();
                     break;
+
                 case 6:
                     try {
                         manager.saveAccounts();

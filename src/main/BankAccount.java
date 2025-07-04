@@ -1,14 +1,16 @@
+package main;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class BankAccount implements Serializable {
     private BigDecimal balance;
 
-    BankAccount() {
+    public BankAccount() {
         this.balance = BigDecimal.ZERO;
     }
 
-    BankAccount(double balance) {
+    public BankAccount(double balance) {
         this.balance = BigDecimal.valueOf(balance);
     }
 
@@ -52,6 +54,5 @@ public class BankAccount implements Serializable {
             System.out.println("Can`t transfer non-positive money!");
         }
     }
-
 
 }

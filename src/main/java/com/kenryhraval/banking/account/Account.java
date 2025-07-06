@@ -1,17 +1,34 @@
-package logic;
+package com.kenryhraval.banking.account;
+
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class BankAccount implements Serializable {
+@Entity
+@Table(name = "accounts")
+public class Account implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private BigDecimal balance;
 
-    public BankAccount() {
+    public Account() {
         this.balance = BigDecimal.ZERO;
     }
 
-    public BankAccount(double balance) {
+    public Account(double balance) {
         this.balance = BigDecimal.valueOf(balance);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public double getBalance() {
+        return balance.doubleValue();
     }
 
     public void deposit(double amount) {
@@ -19,27 +36,25 @@ public class BankAccount implements Serializable {
         if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
             balance = balance.add(bdAmount);
         }
-        else System.out.println("Can`t deposit non-positive money!");
+        else {
+            throw new IllegalArgumentException("Can't deposit non-positive money!");
+        }
     }
 
     public void withdraw(double amount) {
         BigDecimal bdAmount = BigDecimal.valueOf(amount);
         if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
-            balance = balance.subtract(bdAmount);
+            if (balance.compareTo(bdAmount) >= 0) {
+                balance = balance.subtract(bdAmount);
+            } else {
+                throw new IllegalArgumentException("Insufficient funds!");
+            }
         } else {
-            System.out.println("Can`t withdraw non-positive money!");
+            throw new IllegalArgumentException("Can't withdraw non-positive money!");
         }
     }
 
-    public void printBalance() {
-        System.out.println(String.format("Current balance: $%.2f", balance.doubleValue()));
-    }
-
-    public double getBalance() {
-        return balance.doubleValue();
-    }
-
-    public void transferToAnother(BankAccount another, double amount) {
+    public void transferToAnother(Account another, double amount) {
         BigDecimal bdAmount = BigDecimal.valueOf(amount);
         if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
             if (this.balance.compareTo(bdAmount) >= 0) {
@@ -51,7 +66,7 @@ public class BankAccount implements Serializable {
             }
 
         } else {
-            System.out.println("Can`t transfer non-positive money!");
+            System.out.println("Can't transfer non-positive money!");
         }
     }
 

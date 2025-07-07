@@ -56,18 +56,16 @@ public class Account implements Serializable {
 
     public void transferToAnother(Account another, double amount) {
         BigDecimal bdAmount = BigDecimal.valueOf(amount);
-        if (bdAmount.compareTo(BigDecimal.ZERO) > 0) {
-            if (this.balance.compareTo(bdAmount) >= 0) {
-                this.withdraw(amount);
-                another.deposit(amount);
-
-            } else {
-                System.out.println("Not enough money for the transfer!");
-            }
-
-        } else {
-            System.out.println("Can't transfer non-positive money!");
+        if (bdAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Can't transfer non-positive money!");
         }
+
+        if (this.balance.compareTo(bdAmount) < 0) {
+            throw new IllegalArgumentException("Not enough money for the transfer!");
+        }
+
+        this.withdraw(amount);
+        another.deposit(amount);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.kenryhraval.banking.account;
+package com.kenryhraval.banking.model;
 
 import jakarta.persistence.*;
 

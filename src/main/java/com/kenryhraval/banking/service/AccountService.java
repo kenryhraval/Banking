@@ -1,5 +1,7 @@
-package com.kenryhraval.banking.account;
+package com.kenryhraval.banking.service;
 
+import com.kenryhraval.banking.model.Account;
+import com.kenryhraval.banking.repository.AccountRepository;
 import org.apache.logging.log4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

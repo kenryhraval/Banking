@@ -1,5 +1,7 @@
-package com.kenryhraval.banking.account;
+package com.kenryhraval.banking.controller;
 
+import com.kenryhraval.banking.model.Account;
+import com.kenryhraval.banking.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

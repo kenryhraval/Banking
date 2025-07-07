@@ -1,5 +1,7 @@
-package com.kenryhraval.banking.account;
+package com.kenryhraval.banking.config;
 
+import com.kenryhraval.banking.model.Account;
+import com.kenryhraval.banking.repository.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

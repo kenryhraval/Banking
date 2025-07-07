@@ -1,5 +1,6 @@
-package com.kenryhraval.banking.account;
+package com.kenryhraval.banking.repository;
 
+import com.kenryhraval.banking.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

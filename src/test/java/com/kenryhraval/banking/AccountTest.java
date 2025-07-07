@@ -1,4 +1,6 @@
-import com.kenryhraval.banking.account.Account;
+package com.kenryhraval.banking;
+
+import com.kenryhraval.banking.model.Account;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,12 +40,8 @@ class AccountTest {
         Account source = new Account(30.0);
         Account destination = new Account(50.0);
 
-        source.transferToAnother(destination, 100.0);
-
-        // balances should remain unchanged
-        assertAll(
-            () -> assertEquals(30.0, source.getBalance()),
-            () -> assertEquals(50.0, destination.getBalance())
+        assertThrows(IllegalArgumentException.class, () ->
+                source.transferToAnother(destination, 100.0)
         );
     }
 
@@ -52,11 +50,8 @@ class AccountTest {
         Account source = new Account(100.0);
         Account destination = new Account(200.0);
 
-        source.transferToAnother(destination, -50.0);
-
-        assertAll(
-            () -> assertEquals(100.0, source.getBalance()),
-            () -> assertEquals(200.0, destination.getBalance())
+        assertThrows(IllegalArgumentException.class, () ->
+                source.transferToAnother(destination, -50.0)
         );
     }
 

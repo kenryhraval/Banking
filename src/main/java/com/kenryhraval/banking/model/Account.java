@@ -5,15 +5,22 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import static jakarta.persistence.GenerationType.*;
+
 @Entity
 @Table(name = "accounts")
 public class Account implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private BigDecimal balance;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User owner;
+
 
     public Account() {
         this.balance = BigDecimal.ZERO;
@@ -23,8 +30,17 @@ public class Account implements Serializable {
         this.balance = BigDecimal.valueOf(balance);
     }
 
+    public Account(double balance, User user) {
+        this.balance = BigDecimal.valueOf(balance);
+        owner = user;
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 
     public double getBalance() {

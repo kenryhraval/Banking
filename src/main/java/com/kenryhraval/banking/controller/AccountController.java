@@ -2,10 +2,14 @@ package com.kenryhraval.banking.controller;
 
 import com.kenryhraval.banking.dto.*;
 import com.kenryhraval.banking.model.Account;
+import com.kenryhraval.banking.security.CanTransferFromAccount;
+import com.kenryhraval.banking.security.IsAccountOwnerOrAdmin;
+import com.kenryhraval.banking.security.IsAdmin;
 import com.kenryhraval.banking.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +32,8 @@ public class AccountController {
             summary = "Get all accounts",
             description = "Returns a list of all accounts in the system."
     )
-    @GetMapping("/all")
+    @GetMapping
+    @IsAdmin
     public List<AccountResponse> getAllAccounts() {
         return accountService.getAllAccounts()
                 .stream()
@@ -40,7 +45,7 @@ public class AccountController {
             summary = "Get my accounts",
             description = "Returns a list of accounts owned by the currently authenticated user."
     )
-    @GetMapping("/")
+    @GetMapping("/me")
     public List<AccountResponse> getMyAccounts(Authentication authentication) {
         String username = authentication.getName();
         return accountService.getAccountsByUsername(username)
@@ -49,65 +54,64 @@ public class AccountController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @Operation(
+            summary = "Transfer money between accounts",
+            description = "Transfers a specified amount from one account to another."
+    )
+    @CanTransferFromAccount
+    @PostMapping("/{sourceAccountId}/transfer")
+    public void transfer( @PathVariable Long sourceAccountId, @RequestBody TransferRequest request) {
+        accountService.transfer(sourceAccountId, request);
+    }
+
     @Operation(
             summary = "Get account balance",
             description = "Retrieves the balance of a specific account by ID."
     )
-    public AccountResponse getAccount(@PathVariable int id) {
-        Account account = accountService.getAccount(id);
+    @IsAccountOwnerOrAdmin
+    @GetMapping("/{accountId}")
+    public AccountResponse getAccount(@PathVariable Long accountId) {
+        Account account = accountService.getAccount(accountId);
         return new AccountResponse(account);
     }
-
-
-    @Operation(
-            summary = "Create a new account",
-            description = "Creates a new account for the currently authenticated user with the given initial balance."
-    )
-    @PostMapping("/create")
-    public long createAccount(@RequestBody CreateAccountRequest request, Authentication auth) {
-        return accountService.createAccount(request, auth.getName());
-    }
-
 
     @Operation(
             summary = "Deposit money",
             description = "Deposits a specified amount into the account with the given ID."
     )
-    @PostMapping("/deposit")
-    public void deposit(@RequestBody DepositRequest request) {
-        accountService.deposit(request);
+    @IsAccountOwnerOrAdmin
+    @PostMapping("/{accountId}/deposit")
+    public void deposit(@PathVariable Long accountId, @RequestBody DepositRequest request) {
+        accountService.deposit(accountId, request);
     }
-
 
     @Operation(
             summary = "Withdraw money",
             description = "Withdraws a specified amount from the account with the given ID."
     )
-    @PostMapping("/withdraw")
-    public void withdraw(@RequestBody WithdrawRequest request) {
-        accountService.withdraw(request);
+    @IsAccountOwnerOrAdmin
+    @PostMapping("/{accountId}/withdraw")
+    public void withdraw(@PathVariable Long accountId, @RequestBody WithdrawRequest request) {
+        accountService.withdraw(accountId, request);
     }
 
-
-    @PostMapping("/transfer")
     @Operation(
-            summary = "Transfer money between accounts",
-            description = "Transfers a specified amount from one account to another."
+            summary = "Create a new account",
+            description = "Creates a new account for the currently authenticated user with the given initial balance."
     )
-    public void transfer(@RequestBody TransferRequest request) {
-        accountService.transfer(request);
+    @PostMapping
+    public long createAccount(@RequestBody CreateAccountRequest request, Authentication auth) {
+        return accountService.createAccount(request, auth.getName());
     }
 
-    @DeleteMapping("/delete")
     @Operation(
-            summary = "Delete account by DTO",
+            summary = "Delete account",
             description = "Deletes an account using a DTO object, only if owned by the authenticated user"
     )
-    public void deleteAccount(@RequestBody DeleteAccountRequest request, Authentication authentication) {
+    @IsAccountOwnerOrAdmin
+    @DeleteMapping("/{accountId}")
+    public void deleteAccount(@PathVariable Long accountId, @RequestBody DeleteAccountRequest request, Authentication authentication) {
         String username = authentication.getName();
-        accountService.deleteAccount(request, username);
+        accountService.deleteAccount(accountId, request, username);
     }
-
-
 }

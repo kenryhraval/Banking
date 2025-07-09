@@ -2,6 +2,7 @@ package com.kenryhraval.banking.model;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +17,8 @@ public class User implements UserDetails {
 
     private String username;
     private String password;
+    private String role; // "USER", "ADMIN"
+
 
     @OneToMany(mappedBy = "owner")
     private List<Account> accounts;
@@ -27,10 +30,9 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    // --- UserDetails interface methods ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // or roles if you have them
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     @Override

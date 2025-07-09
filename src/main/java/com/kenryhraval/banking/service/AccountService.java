@@ -1,28 +1,33 @@
 package com.kenryhraval.banking.service;
 
 import com.kenryhraval.banking.dto.*;
+import com.kenryhraval.banking.exception.AccountNotFoundException;
+import com.kenryhraval.banking.exception.UserNotFoundException;
 import com.kenryhraval.banking.model.Account;
+import com.kenryhraval.banking.model.Transaction;
 import com.kenryhraval.banking.model.User;
 import com.kenryhraval.banking.repository.AccountRepository;
+import com.kenryhraval.banking.repository.TransactionRepository;
 import com.kenryhraval.banking.repository.UserRepository;
-import org.apache.logging.log4j.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import com.kenryhraval.banking.enums.TransactionType;
+import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 public class AccountService {
 
-    private static final Logger logger = LogManager.getLogger(AccountService.class);
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
     }
 
@@ -32,107 +37,141 @@ public class AccountService {
 
     public List<Account> getAccountsByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(username));
         return accountRepository.findByOwner(user);
     }
 
-    public Account getAccount(@PathVariable long id) {
+    public Account getAccount(long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     public long createAccount(CreateAccountRequest request, String username) {
         double initialBalance = request.getInitialBalance();
-
-        logger.info("Creating new account with initial balance {} for user {}", initialBalance, username);
+        String description = request.getDescription();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(username));
 
         Account account = new Account(initialBalance, user);
         Account saved = accountRepository.save(account);
 
+        Transaction tx = new Transaction(
+                account,
+                TransactionType.CREATE,
+                BigDecimal.valueOf(initialBalance),
+                description,
+                BigDecimal.valueOf(initialBalance)
+        );
+        transactionRepository.save(tx);
+
         return saved.getId();
     }
 
-    public void deposit(DepositRequest request) {
+    public void deposit(long id, DepositRequest request) {
         double amount = request.getAmount();
-        long id = request.getAccountId();
-
-        logger.info("Depositing {} to account id={}", amount, id);
-
-        Account account = accountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
-
-        try {
-            account.deposit(amount);
-            accountRepository.save(account);
-            logger.info("Depositing complete. New balance: {}", account.getBalance());
-
-        } catch (IllegalArgumentException e) {
-            logger.error("Depositing failed for account id={}: {}", id, e.getMessage());
-            throw e;
-        }
-    }
-
-    public void withdraw(WithdrawRequest request) {
-        double amount = request.getAmount();
-        long id = request.getAccountId();
-
-        logger.info("Withdrawing {} from account id={}", amount, id);
+        String description = request.getDescription();
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(id));
 
-        try {
-            account.withdraw(amount);
-            accountRepository.save(account);
-            logger.info("Withdrawal complete. New balance: {}", account.getBalance());
 
-        } catch (IllegalArgumentException e) {
-            logger.error("Withdrawal failed for account id={}: {}", id, e.getMessage());
-            throw e;
-        }
+        account.deposit(amount);
+        accountRepository.save(account);
+
+        Transaction tx = new Transaction(
+                account,
+                TransactionType.DEPOSIT,
+                BigDecimal.valueOf(amount),
+                description,
+                BigDecimal.valueOf(account.getBalance())
+        );
+        transactionRepository.save(tx);
+
     }
 
-    public void transfer(TransferRequest request) {
-        long sourceId = request.getSourceAccountId();
+    public void withdraw(long id, WithdrawRequest request) {
+        double amount = request.getAmount();
+        String description = request.getDescription();
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
+
+        account.withdraw(amount);
+        accountRepository.save(account);
+
+        Transaction tx = new Transaction(
+                account,
+                TransactionType.WITHDRAW,
+                BigDecimal.valueOf(amount),
+                description,
+                BigDecimal.valueOf(account.getBalance())
+        );
+        transactionRepository.save(tx);
+
+    }
+
+
+    public void transfer(long sourceId, TransferRequest request) {
         long destinationId = request.getDestinationAccountId();
         double amount = request.getAmount();
-
-        logger.info("Transferring {} from account {} to {}", amount, sourceId, destinationId);
+        String description = request.getDescription();
 
         Account source = accountRepository.findById(sourceId)
-                .orElseThrow(() -> new IllegalArgumentException("Source account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(sourceId));
         Account destination = accountRepository.findById(destinationId)
-                .orElseThrow(() -> new IllegalArgumentException("Destination account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(destinationId));
 
-        try {
-            source.transferToAnother(destination, amount);
-            accountRepository.save(source);
-            accountRepository.save(destination);
-            logger.info("Transfer successful. New balances: source={}, destination={}",
-                    source.getBalance(), destination.getBalance());
-        } catch (IllegalArgumentException e) {
-            logger.error("Transfer failed: {}", e.getMessage());
-            throw e;
-        }
+
+        source.transferToAnother(destination, amount);
+        accountRepository.save(source);
+        accountRepository.save(destination);
+
+        Transaction tx1 = new Transaction(
+                source,
+                TransactionType.TRANSFER_OUT,
+                BigDecimal.valueOf(amount),
+                description,
+                destination,
+                BigDecimal.valueOf(source.getBalance())
+        );
+        Transaction tx2 = new Transaction(
+                destination,
+                TransactionType.TRANSFER_IN,
+                BigDecimal.valueOf(amount),
+                description,
+                source,
+                BigDecimal.valueOf(destination.getBalance())
+        );
+        transactionRepository.save(tx1);
+        transactionRepository.save(tx2);
+
     }
 
-    public void deleteAccount(DeleteAccountRequest request, String username) {
-        long accountId = request.getAccountId();
-        logger.info("User {} requested to delete account id={} (reason: {})", username, accountId, request.getReason());
+    public void deleteAccount(long id, DeleteAccountRequest request, String username) {
+        String description = request.getDescription();
 
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
 
-        if (!account.getOwner().getUsername().equals(username)) {
-            logger.warn("Unauthorized delete attempt by user={} on account id={}", username, accountId);
-            throw new SecurityException("You do not have permission to delete this account.");
-        }
+        account.setDeleted(true);
+        accountRepository.save(account);
 
-        accountRepository.delete(account);
-        logger.info("Account id={} successfully deleted", accountId);
+        Transaction tx = new Transaction(
+                account,
+                TransactionType.WITHDRAW,
+                BigDecimal.valueOf(0),
+                description,
+                BigDecimal.valueOf(0)
+        );
+        transactionRepository.save(tx);
     }
+
+    public boolean isOwner(Long accountId, String username) {
+        Account account = accountRepository.findById(accountId).orElse(null);
+        return account != null && account.getOwner().getUsername().equals(username);
+    }
+
 
 
 

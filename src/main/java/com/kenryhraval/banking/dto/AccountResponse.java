@@ -8,10 +8,12 @@ public class AccountResponse {
     private long id;
     private double balance;
     private String ownerUsername;
+    private boolean deleted;
 
     public AccountResponse(Account account) {
         this.id = account.getId();
         this.balance = account.getBalance();
         this.ownerUsername = account.getOwner().getUsername();
+        this.deleted = account.isDeleted();
     }
 }

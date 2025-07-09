@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class CreateAccountRequest {
     private double initialBalance;
+    private String description;
 }

@@ -1,6 +1,8 @@
 package com.kenryhraval.banking.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,16 +13,22 @@ import static jakarta.persistence.GenerationType.*;
 @Table(name = "accounts")
 public class Account implements Serializable {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private BigDecimal balance;
 
+    @Getter
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User owner;
 
+    @Getter
+    @Setter
+    @Column(nullable = false)
+    private boolean deleted = false;
 
     public Account() {
         this.balance = BigDecimal.ZERO;
@@ -33,14 +41,6 @@ public class Account implements Serializable {
     public Account(double balance, User user) {
         this.balance = BigDecimal.valueOf(balance);
         owner = user;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getOwner() {
-        return owner;
     }
 
     public double getBalance() {

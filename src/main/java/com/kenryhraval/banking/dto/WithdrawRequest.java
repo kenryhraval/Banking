@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class WithdrawRequest {
-    private long accountId;
     private double amount;
+    private String description;
 }

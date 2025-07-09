@@ -34,12 +34,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--Frontend-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
         <!--Database-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

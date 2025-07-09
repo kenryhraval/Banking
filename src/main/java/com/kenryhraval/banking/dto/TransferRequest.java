@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class TransferRequest {
-    private long sourceAccountId;
     private long destinationAccountId;
     private double amount;
+    private String description;
 }

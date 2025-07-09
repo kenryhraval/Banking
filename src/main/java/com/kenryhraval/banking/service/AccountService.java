@@ -1,5 +1,6 @@
 package com.kenryhraval.banking.service;
 
+import com.kenryhraval.banking.dto.*;
 import com.kenryhraval.banking.model.Account;
 import com.kenryhraval.banking.model.User;
 import com.kenryhraval.banking.repository.AccountRepository;
@@ -35,13 +36,14 @@ public class AccountService {
         return accountRepository.findByOwner(user);
     }
 
-    public double getBalance(@PathVariable long id) {
-        Account account = accountRepository.findById(id)
+    public Account getAccount(@PathVariable long id) {
+        return accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        return account.getBalance();
     }
 
-    public long createAccount(double initialBalance, String username) {
+    public long createAccount(CreateAccountRequest request, String username) {
+        double initialBalance = request.getInitialBalance();
+
         logger.info("Creating new account with initial balance {} for user {}", initialBalance, username);
 
         User user = userRepository.findByUsername(username)
@@ -53,23 +55,29 @@ public class AccountService {
         return saved.getId();
     }
 
-    public void deposit(@PathVariable long id, @RequestParam double amount) {
+    public void deposit(DepositRequest request) {
+        double amount = request.getAmount();
+        long id = request.getAccountId();
+
         logger.info("Depositing {} to account id={}", amount, id);
 
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
         try {
             account.deposit(amount);
             accountRepository.save(account);
             logger.info("Depositing complete. New balance: {}", account.getBalance());
+
         } catch (IllegalArgumentException e) {
             logger.error("Depositing failed for account id={}: {}", id, e.getMessage());
             throw e;
         }
     }
 
-    public void withdraw(@PathVariable long id, @RequestParam double amount) {
+    public void withdraw(WithdrawRequest request) {
+        double amount = request.getAmount();
+        long id = request.getAccountId();
+
         logger.info("Withdrawing {} from account id={}", amount, id);
 
         Account account = accountRepository.findById(id)
@@ -79,13 +87,18 @@ public class AccountService {
             account.withdraw(amount);
             accountRepository.save(account);
             logger.info("Withdrawal complete. New balance: {}", account.getBalance());
+
         } catch (IllegalArgumentException e) {
             logger.error("Withdrawal failed for account id={}: {}", id, e.getMessage());
             throw e;
         }
     }
 
-    public void transfer(long sourceId, long destinationId, double amount) {
+    public void transfer(TransferRequest request) {
+        long sourceId = request.getSourceAccountId();
+        long destinationId = request.getDestinationAccountId();
+        double amount = request.getAmount();
+
         logger.info("Transferring {} from account {} to {}", amount, sourceId, destinationId);
 
         Account source = accountRepository.findById(sourceId)
@@ -104,5 +117,23 @@ public class AccountService {
             throw e;
         }
     }
+
+    public void deleteAccount(DeleteAccountRequest request, String username) {
+        long accountId = request.getAccountId();
+        logger.info("User {} requested to delete account id={} (reason: {})", username, accountId, request.getReason());
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+        if (!account.getOwner().getUsername().equals(username)) {
+            logger.warn("Unauthorized delete attempt by user={} on account id={}", username, accountId);
+            throw new SecurityException("You do not have permission to delete this account.");
+        }
+
+        accountRepository.delete(account);
+        logger.info("Account id={} successfully deleted", accountId);
+    }
+
+
 
 }

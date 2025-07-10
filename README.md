@@ -23,13 +23,13 @@
 ## How to Run
 
 1. Clone the repo:
-   ```bash
-   git clone https://github.com/yourusername/banking-api.git
-   cd banking-api
-   ```
+```bash
+git clone https://github.com/yourusername/banking-api.git
+cd banking-api
+```
 2. Run the backend:
-    ```bash
-    ./mvnw spring-boot:run
-    ```
+```bash
+./mvnw spring-boot:run
+```
 
 Swagger UI & interactive documentation: http://localhost:8080/swagger-ui/index.html

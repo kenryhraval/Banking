@@ -1,6 +1,7 @@
 package com.kenryhraval.banking.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ public class User implements UserDetails {
 
     private String username;
     private String password;
+    @Getter
     private String role; // "USER", "ADMIN"
 
 
@@ -66,4 +68,5 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
+
 }

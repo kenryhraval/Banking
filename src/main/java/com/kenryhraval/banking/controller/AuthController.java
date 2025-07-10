@@ -1,6 +1,7 @@
 package com.kenryhraval.banking.controller;
 
 import com.kenryhraval.banking.dto.LoginRequest;
+import com.kenryhraval.banking.dto.LoginResponse;
 import com.kenryhraval.banking.dto.RegisterRequest;
 import com.kenryhraval.banking.model.User;
 import com.kenryhraval.banking.security.JwtService;
@@ -27,10 +28,13 @@ public class AuthController {
 
     @Operation(summary = "Log in with username and password", description = "Returns JWT token if login is successful.")
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         User user = userService.authenticate(request.getUsername(), request.getPassword());
-        return jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
+        LoginResponse response = new LoginResponse(token, user.getUsername(), user.getRole());
+        return ResponseEntity.ok(response);
     }
+
 
     @Operation(summary = "Register a new user", description = "Creates a user with the provided username and password.")
     @PostMapping("/register")

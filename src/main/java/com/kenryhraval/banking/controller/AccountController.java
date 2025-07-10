@@ -111,7 +111,6 @@ public class AccountController {
     @IsAccountOwnerOrAdmin
     @DeleteMapping("/{accountId}")
     public void deleteAccount(@PathVariable Long accountId, @RequestBody DeleteAccountRequest request, Authentication authentication) {
-        String username = authentication.getName();
-        accountService.deleteAccount(accountId, request, username);
+        accountService.deleteAccount(accountId, request);
     }
 }

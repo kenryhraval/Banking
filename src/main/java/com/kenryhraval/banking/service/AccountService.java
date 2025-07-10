@@ -111,7 +111,6 @@ public class AccountService {
 
     }
 
-
     public void transfer(long sourceId, TransferRequest request) {
         long destinationId = request.getDestinationAccountId();
         double amount = request.getAmount();
@@ -148,7 +147,7 @@ public class AccountService {
 
     }
 
-    public void deleteAccount(long id, DeleteAccountRequest request, String username) {
+    public void deleteAccount(long id, DeleteAccountRequest request) {
         String description = request.getDescription();
 
         Account account = accountRepository.findById(id)

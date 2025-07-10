@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ADMIN') or @accountSecurity.isAccountOwner(#request.sourceAccountId, authentication)")
+@PreAuthorize("hasRole('ADMIN') or @accountSecurity.isAccountOwner(#sourceAccountId, authentication)")
 public @interface CanTransferFromAccount {}

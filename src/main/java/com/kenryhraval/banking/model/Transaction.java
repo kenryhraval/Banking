@@ -4,12 +4,15 @@ import com.kenryhraval.banking.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Table(name = "transactions")
+@NoArgsConstructor
 public class Transaction {
     @Id
     @GeneratedValue

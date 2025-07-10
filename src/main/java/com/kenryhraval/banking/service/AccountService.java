@@ -166,13 +166,4 @@ public class AccountService {
         );
         transactionRepository.save(tx);
     }
-
-    public boolean isOwner(Long accountId, String username) {
-        Account account = accountRepository.findById(accountId).orElse(null);
-        return account != null && account.getOwner().getUsername().equals(username);
-    }
-
-
-
-
 }

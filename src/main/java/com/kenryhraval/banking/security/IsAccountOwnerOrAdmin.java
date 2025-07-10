@@ -5,5 +5,5 @@ import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ADMIN') or @accountSecurity.isAccountOwner(#request.accountId, authentication)")
+@PreAuthorize("hasRole('ADMIN') or @accountSecurity.isAccountOwner(#accountId, authentication)")
 public @interface IsAccountOwnerOrAdmin { }

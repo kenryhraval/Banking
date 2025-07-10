@@ -17,8 +17,9 @@ public class AccountSecurity {
     }
 
     public boolean isAccountOwner(Long accountId, Authentication authentication) {
+        System.out.println("isAccountOwner called: user=" + authentication.getName() + ", accountId=" + accountId);
         String username = authentication.getName();
         Account account = accountRepository.findById(accountId).orElse(null);
-        return account != null && account.getOwner().getUsername().equals(username);
+        return (account != null) && account.getOwner().getUsername().equals(username);
     }
 }

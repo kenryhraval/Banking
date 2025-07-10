@@ -28,7 +28,7 @@ public class Account implements Serializable {
     @Getter
     @Setter
     @Column(nullable = false)
-    private boolean deleted = false;
+    private boolean deleted;
 
     public Account() {
         this.balance = BigDecimal.ZERO;
@@ -41,6 +41,7 @@ public class Account implements Serializable {
     public Account(double balance, User user) {
         this.balance = BigDecimal.valueOf(balance);
         owner = user;
+        deleted = false;
     }
 
     public double getBalance() {

@@ -2,9 +2,14 @@ package com.kenryhraval.banking.dto;
 
 import com.kenryhraval.banking.enums.TransactionType;
 import com.kenryhraval.banking.model.Transaction;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 public class TransactionResponse {
 //    private Long accountId;
     private TransactionType type;
